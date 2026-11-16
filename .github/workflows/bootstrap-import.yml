@@ -1,0 +1,39 @@
+name: Import verified LEGENDA PLANNER package
+on:
+  push:
+    branches: ['import/legenda-planner-20261116']
+    paths: ['.bootstrap/READY']
+permissions:
+  contents: write
+concurrency:
+  group: initial-legenda-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: import/legenda-planner-20261116
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore exact verified sources
+        run: python .bootstrap/restore.py
+      - name: Build offline application
+        run: python scripts/build.py
+      - name: Validate build, JavaScript and unit tests
+        run: python scripts/check.py
+      - name: Commit verified project files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- .gitattributes .gitignore README.md AGENTS.md data docs src scripts tests skills index.html dist skill.zip
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add verified LEGENDA PLANNER application, documentation and development skill'
+            git push origin HEAD:import/legenda-planner-20261116
+          fi
