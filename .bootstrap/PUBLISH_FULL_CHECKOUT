@@ -1,3 +1,3 @@
-Verify the complete repository checkout before publishing the checksummed source snapshot.
-Expected initial main: 4c595c2be6a9cd6e0b33abb8287d8a08f5208979.
-Preserve any concurrent changes; do not force push.
+User requested publishing LEGENDA PLANNER to main.
+Import script: 5f8f6d505649597f92faa088412febaa1be0ff30
+Verify all transport and file checksums, run build and tests, preserve the expected main parent, and publish without force.
