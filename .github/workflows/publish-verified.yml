@@ -1,0 +1,26 @@
+name: Publish verified LEGENDA PLANNER snapshot
+on:
+  push:
+    branches: ['import/legenda-planner-20261116']
+    paths: ['.bootstrap/PUBLISH']
+permissions:
+  contents: write
+concurrency:
+  group: initial-legenda-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: import/legenda-planner-20261116
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore, test and publish clean snapshot
+        run: python .bootstrap/publish.py
