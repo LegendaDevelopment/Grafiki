@@ -26,8 +26,8 @@ BLOBS = [
 '6af534766fdc04cefbc3a7e057a7226f79d2c560',
 '56b3bb8b08611ed49f02e7f86f11fdf5dc481771',
 '3c965c51c66cb8e6557a8514c90d3dbb446fc342',
-'520f2f6da68eabec53b28fff5675557757d31b69',
-'0d4ede84ce0c248f881764e87b69b82642e37f4c',
+'6f99b3b739c8148fa5ccf30e744bb010fe649f10',
+'e85304f5b1731fec4362e19fa5a5bbf0b347fa13',
 ]
 
 def git(*args, data=None, env=None):
@@ -44,7 +44,8 @@ def main():
     if actual != EXPECTED_MAIN:
         raise RuntimeError('Main changed since initial inspection; refusing to overwrite it')
     chunks = []
-    for sha in BLOBS:
+    for index, sha in enumerate(BLOBS, 1):
+        print('Reading verified transport chunk', index, 'of', len(BLOBS), sha, flush=True)
         request = urllib.request.Request(
             f'https://api.github.com/repos/{REPO}/git/blobs/{sha}',
             headers={'Accept': 'application/vnd.github+json',
@@ -59,6 +60,7 @@ def main():
             raise ValueError('Blob integrity failure')
         chunks.append(content)
     packed = b''.join(chunks)
+    print('Transport size:', len(packed), 'SHA256:', hashlib.sha256(packed).hexdigest(), flush=True)
     if len(packed) != 148384 or hashlib.sha256(packed).hexdigest() != CHECKSUM:
         raise ValueError('Transport checksum mismatch')
     decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ, memlimit=256*1024*1024)
